@@ -1,5 +1,8 @@
 name: follow-pipeline
 
+
+ 
+
 on:
   push:
     branches: ["main"]
@@ -10,13 +13,10 @@ permissions:
 jobs:
   build-deploy:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: bash
 
     steps:
       # 1. Checkout source code
-      - name: Checkout sources de
+      - name: Checkout codewsw
         uses: actions/checkout@v3
 
       # 2. Set up Docker
@@ -31,53 +31,42 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       # 4. Build and push Docker image
-      - name: Build and push Docker image
-        run: |
-          docker build -t hritik2345/follow:${{ github.sha }} .
-          docker push hritik2345/follow:${{ github.sha }}
-
-      # 5. Checkout infra repo (manifests)
-      - name: Checkout infra repo
-        uses: actions/checkout@v3
+       
+       
+      - name: Build and push
+        uses: docker/build-push-action@v5
         with:
-          repository: Hritik-choukikar/follow_secret
-          ref: main
-          token: ${{ secrets.GH_PAT3 }}
-          path: infra-repo
-
-      # 6. Debug manifest paths
-      - name: Debug infra repo files
-        run: |
-          ls -la infra-repo
-
-      # 7. Set up kubectl
-      - name: Set up kubectl
+          context: .
+          push: true
+          tags: |
+            ${{ secrets.DOCKER_USERNAME }}/follow:latest
+            ${{ secrets.DOCKER_USERNAME }}/follow:${{ github.sha }}
+       
+      - name: Setup kubectl
         uses: azure/setup-kubectl@v3
-        with:
-          version: "latest"
 
-      # 8. Configure kubeconfig
       - name: Configure kubeconfig
         run: |
-          mkdir -p $HOME/.kube
-          echo "${{ secrets.TO }}" > $HOME/.kube/config
-          export KUBECONFIG=$HOME/.kube/config
+          mkdir -p ~/.kube
+          echo "${{ secrets.KUBE_CONFIG10 }}" | base64 -d > ~/.kube/config
 
-      # 9. Verify cluster connection
-      - name: Verify cluster connections
-        run: |
-          kubectl config current-context
-          kubectl get namespaces
 
-      # 10. Replace image placeholder in deployment
-      - name: Replace image placeholder
-        run: |
-          sed -i "s|IMAGEHOLDER|hritik2345/follow:${{ github.sha }}|g" infra-repo/deployment.yaml
+      
+      
 
-      # 11. Apply Kubernetes manifests
+      
+           
+
+       
+       
+
+      # 10. Apply Kubernetes manifests
       - name: Apply Kubernetes manifests
+
         run: |
-          kubectl apply -f infra-repo/config_map.yaml
-          kubectl apply -f infra-repo/secrets.yaml
-          kubectl apply -f infra-repo/deployments.yaml --validate=false
-          kubectl apply -f infra-repo/services.yaml
+          kubectl apply -f k8s/neo_service.yaml
+          
+          kubectl apply -f k8s/services.yaml
+          kubectl apply -f k8s/deployment.yaml
+
+ 

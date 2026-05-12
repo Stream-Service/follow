@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: myapp-follow-deployment
+spec:
+  selector:
+    matchLabels:
+      app: myapp_follow
+  template:
+    metadata:
+      labels:
+        app: myapp_follow
+    spec:
+      containers:
+      - name: myapp-follow-container
+        image: hritik2345/stream-service-follow:latest
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "500m"
+
+
+          limits:
+            memory: "256Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: 8002
+        envFrom:
+           - secretRef:
+               name: mysecret-follow 

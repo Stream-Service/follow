@@ -1,3 +1,9 @@
 .env
 __pycache__/
 follow/
+k8s/secrets.yaml
+neo_secret.yaml
+docker-compose.yml
+
+
+

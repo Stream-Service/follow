@@ -1,0 +1,111 @@
+# k8s/neo4j.yaml
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: neo4j-pv
+  labels:
+    app: neo4j
+spec:
+  capacity:
+    storage: 1500Mi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: /mnt/neo4j-data
+  claimRef:
+    namespace: default
+    name: neo4j-data
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: neo4j-data
+  labels:
+    app: neo4j
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1500Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: neo4j-service
+  labels:
+    app: neo4j
+spec:
+  selector:
+    app: neo4j
+  ports:
+    - name: bolt
+      port: 7687
+      targetPort: 7687
+    - name: http
+      port: 7474
+      targetPort: 7474
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: neo4j
+  labels:
+    app: neo4j
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: neo4j
+  template:
+    metadata:
+      labels:
+        app: neo4j
+    spec:
+      initContainers:
+        - name: fix-permissions
+          image: busybox
+          command: ["sh", "-c", "mkdir -p /data && chmod -R 777 /data"]
+          volumeMounts:
+            - name: neo4j-data
+              mountPath: /data
+      containers:
+        - name: neo4j
+          image: neo4j:5.18.0
+          ports:
+            - name: bolt
+              containerPort: 7687
+            - name: http
+              containerPort: 7474
+          envFrom:
+            - secretRef:
+                name: neo4j-secret
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "1Gi"
+              cpu: "500m"
+          volumeMounts:
+            - name: neo4j-data
+              mountPath: /data
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 7474
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            failureThreshold: 6
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 7474
+            initialDelaySeconds: 90
+            periodSeconds: 20
+      volumes:
+        - name: neo4j-data
+          persistentVolumeClaim:
+            claimName: neo4j-data
