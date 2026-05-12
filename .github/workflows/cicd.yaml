@@ -39,8 +39,8 @@ jobs:
           context: .
           push: true
           tags: |
-            ${{ secrets.DOCKER_USERNAME }}/follow:latest
-            ${{ secrets.DOCKER_USERNAME }}/follow:${{ github.sha }}
+            ${{ secrets.DOCKER_USERNAME }}/stream-service-follow:latest
+            ${{ secrets.DOCKER_USERNAME }}/stream-service-follow:${{ github.sha }}
        
       - name: Setup kubectl
         uses: azure/setup-kubectl@v3
