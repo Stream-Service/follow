@@ -64,6 +64,7 @@ spec:
       labels:
         app: neo4j
     spec:
+      enableServiceLinks: false 
       initContainers:
         - name: fix-permissions
           image: busybox
