@@ -1,4 +1,5 @@
 
+import threading
 from fastapi import FastAPI,Form
 
 
@@ -8,6 +9,7 @@ from fastapi.responses import JSONResponse
 from database import driver
 
 from pydantic import BaseModel
+from consumer import consume_messages
 
 class UserCreate(BaseModel):
     username: str
@@ -15,6 +17,12 @@ class UserCreate(BaseModel):
 
 
 router=FastAPI()
+
+@router.on_event("startup")
+def start_kafka_consumer():
+    consumer_thread = threading.Thread(target=consume_messages, daemon=True)
+    consumer_thread.start()
+    print("Kafka consumer started in background thread")
 
 router.add_middleware(
     CORSMiddleware,

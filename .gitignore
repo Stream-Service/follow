@@ -4,6 +4,5 @@ follow/
 k8s/secrets.yaml
 neo_secret.yaml
 docker-compose.yml
-
-
+.claude/
 
