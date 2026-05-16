@@ -2,6 +2,9 @@ from kafka import KafkaConsumer
 import json
 from config import setting
 from database import driver
+import logging
+
+logger = logging.getLogger("uvicorn.error") # Joins the Uvicorn log stream
 
 
 def create_user_in_db(username: str, email: str, user_id: int = None):
@@ -66,7 +69,8 @@ def consume_messages():
                 user_id = data.get('user_id')
                 if username and email:
                     create_user_in_db(username, email, user_id)
-                    print(f"IUSER CRETED: {data}",flush=True)
+                    logger.info(f"[KAFKA] Event sent to create_db_user: {data}")
+                     
                 else:
                     print(f"Invalid message data: {data}")
 
