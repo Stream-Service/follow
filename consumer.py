@@ -66,6 +66,7 @@ def consume_messages():
                 user_id = data.get('user_id')
                 if username and email:
                     create_user_in_db(username, email, user_id)
+                    print(f"IUSER CRETED: {data}",flush=True)
                 else:
                     print(f"Invalid message data: {data}")
 
