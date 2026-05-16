@@ -32,6 +32,7 @@ kafka-python==2.2.15
 kafka-python-ng==2.2.3
 mailtrap==2.4.0
 MarkupSafe==3.0.3
+neo4j==6.0.3
 oauthlib==3.3.1
 packaging==25.0
 proto-plus==1.26.1
