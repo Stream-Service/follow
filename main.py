@@ -39,7 +39,7 @@ def root():
     return {"Connection":"Successful"}
      
 
-@router.post("following/unfollow")
+@router.post("/following/unfollow")
 def unfollow_user(follower_id: int = Form(...), following_id: int = Form(...)):
     with driver.session() as session:
         session.run("""
@@ -51,7 +51,7 @@ def unfollow_user(follower_id: int = Form(...), following_id: int = Form(...)):
 
  
 
-@router.post("following/create_user_no_sql")
+@router.post("/following/create_user_no_sql")
 def create_user(user: UserCreate):
     with driver.session() as session:
         session.run(
@@ -66,7 +66,7 @@ def create_user(user: UserCreate):
 
  
 
-@router.post("following/follow")
+@router.post("/following/follow")
 def follow_user(follower_id: int = Form(...), following_id: int = Form(...)):
     with driver.session() as session:
         session.run("""
@@ -90,7 +90,7 @@ def get_followings(user_id: int):
         """, user_id=user_id)
         return {"followings": [record["following_id"] for record in result]}
 
-@router.get("following/suggestions/{user_id}")
+@router.get("/following/suggestions/{user_id}")
 def suggest_friends(user_id: int):
     with driver.session() as session:
         result = session.run("""
