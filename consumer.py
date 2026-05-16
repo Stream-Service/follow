@@ -53,7 +53,7 @@ def consume_messages():
         enable_auto_commit=True
     )
 
-    print("Kafka consumer started. Waiting for messages...")
+    print("Kafka consumer started. Waiting for messages...",flush=True)
 
     for message in consumer:
         try:
