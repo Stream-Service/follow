@@ -49,7 +49,14 @@ def unfollow_user(follower_id: int = Form(...), following_id: int = Form(...)):
     return {"message": "Unfollowed"}
 
 
- 
+@router.get("/following/is-following")
+def is_following(follower_id: int, following_id: int):
+    with driver.session() as session:
+        result = session.run("""
+            MATCH (a:User {id: $follower_id})-[:FOLLOWS]->(b:User {id: $following_id})
+            RETURN count(*) > 0 AS is_following
+        """, follower_id=follower_id, following_id=following_id)
+        return {"is_following": result.single()["is_following"]}
 
 @router.post("/following/create_user_no_sql")
 def create_user(user: UserCreate):
