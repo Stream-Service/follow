@@ -87,6 +87,25 @@ def follow_user(follower_id: int = Form(...), following_id: int = Form(...)):
         content={"message": f"User {follower_id} now follows {following_id}"}
     )
 
+@router.get("/following/followers/{user_id}")
+def get_followers(user_id: int):
+    with driver.session() as session:
+        # Match any user (f) who has an outgoing FOLLOWS relationship to the targeted user_id node
+        result = session.run("""
+            MATCH (f:User)-[:FOLLOWS]->(:User {id: $user_id})
+            RETURN f.id AS follower_id, f.username AS username, f.email AS email
+        """, user_id=user_id)
+        
+        # Parse out the data array safely from the transaction records
+        followers_list = []
+        for record in result:
+            followers_list.append({
+                "follower_id": record["follower_id"],
+                "username": record.get("username") or "Unknown",
+                "email": record.get("email") or "No Email"
+            })
+            
+        return {"followers": followers_list}
 
 @router.get("following/followings/{user_id}")
 def get_followings(user_id: int):
