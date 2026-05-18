@@ -107,7 +107,7 @@ def get_followers(user_id: int):
             
         return {"followers": followers_list}
 
-@router.get("following/followings/{user_id}")
+@router.get("/following/followings/{user_id}")
 def get_followings(user_id: int):
     with driver.session() as session:
         result = session.run("""
